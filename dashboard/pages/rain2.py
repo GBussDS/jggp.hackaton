@@ -10,36 +10,65 @@ dash.register_page(__name__, path="/rain2", name="Chuva2", svg="icons/rain.svg")
 
 # Função de callback para armazenar o DataFrame
 @callback(
-    Output('data-store2', 'data'),
-    Input('data-store2', 'id')
+    Output('rain-data-store-2', 'data'),
+    Input('rain-data-store-2', 'id')
 )
 def store_data(id):
     # Criando um DataFrame do zero
     df = pd.DataFrame({
-        'Categoria': ['A', 'B', 'B', 'A', 'C', 'C', 'C', 'B', 'A', 'A'],
-        'Valor': [10, 15, 7, 10, 10, 15, 7, 10, 10, 15]
+        'Cidade': ['Flamengo', 'Barra da Tijuca', 'Botafogo', 'Catete', 'Centro'],
+        'Chuva': [120, 150, 170, 200, 180]
     })
-
-    # Limpeza básica e filtragem
-    df = df[df['Valor'] > 10]  # Filtrando linhas onde Valor é maior que 10
 
     return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
 
 # Função de callback para atualizar o gráfico
 @callback(
-    Output('exemplo-grafico2', 'figure'),
-    Input('data-store2', 'data')
+    Output('rain-graph-2', 'figure'),
+    Input('rain-data-store-2', 'data')
 )
 def update_graph(data):
     df = pd.DataFrame(data)  # Convertendo o dicionário de volta para um DataFrame
+
     # Criando um gráfico com Plotly Express
-    fig = px.bar(df, x='Categoria', y='Valor', title='Gráfico de Barras Simples')
+    fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
+
+    # Atualizando as propriedades dos traços
+    fig.update_traces(
+        hovertemplate="<b>%{x}</b><br>Chuva: %{y} mm",
+        textfont=dict(color="white"),
+        insidetextfont=dict(color="white"),
+        hoverlabel=dict(font=dict(color="white")),
+        marker_line_width=0
+    )
+
+    # Atualizando o layout
+    fig.update_layout(
+        title='',
+        plot_bgcolor='rgba(0,0,0,0)',  # fundo transparente
+        paper_bgcolor='rgba(0,0,0,0)',  # fundo transparente
+        xaxis=dict(showgrid=True, gridcolor='rgba(200,200,200,0.2)', zeroline=False, title_text=''),
+        yaxis=dict(showgrid=True, gridcolor='rgba(200,200,200,0.2)', zeroline=False, title_text=''),
+        margin=dict(l=0, r=0, t=0, b=0),
+        legend=dict(font=dict(color="white")),
+        font=dict(color="white")
+    )
+
+    # Atualizando os eixos x
+    fig.update_xaxes(
+        showgrid=True, 
+        gridcolor='rgba(200,200,200,0.2)', 
+        zeroline=False, 
+        title_text='',
+        nticks=5,
+        tickangle=0,
+    )
+
     return fig
 
 # Layout do dashboard
 layout = html.Div([
-    header("Header 2"),
-    dcc.Graph(id='exemplo-grafico'),
-    dcc.Store(id='data-store') 
+    header("Chuva no Rio de Janeiro"),
+    dcc.Graph(id='rain-graph-2'),
+    dcc.Store(id='rain-data-store-2') 
 ])
-

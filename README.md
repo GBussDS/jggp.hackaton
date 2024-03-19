@@ -1,13 +1,10 @@
-# Dashboard-LACOM
-Dashboard com dados de marketing da LACOM
+# Hackaton
+Projeto feito para a Rio Águas em um Hackaton feito pela FGValley - 2024.1
 ---
-Gerente: João Gabriel
-
-Trainees: Bruno Danziato e Lucas Dressler;
+Participantes: João Gabriel, Guilherme Buss, Gustavo Bianchi, Pedro Coterli
 
 ---
-## Sentido
-A LACOM necessita um dashboard com dados do google planilhas, na qual eles guardam dados do Instagram e outras de suas redes sociais. O projeto de Trainee vai de 04/03 até dia 23/03
+
 
 
 

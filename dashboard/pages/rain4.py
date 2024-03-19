@@ -4,6 +4,7 @@ from dash import dcc, html, Dash, callback, Output, Input
 import dash
 
 from components.header import header
+from components.apply import apply_updates
 
 # Registrando a página
 dash.register_page(__name__, path="/rain4", name="Chuva4", svg="icons/rain.svg")
@@ -22,6 +23,44 @@ def store_data(id):
 
     return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
 
+# Função de callback para atualizar o gráfico de pizza
+@callback(
+    Output('rain-graph-1', 'figure'),
+    Input('rain-data-store-4', 'data')
+)
+def update_pie_chart(data):
+    df = pd.DataFrame(data)
+    fig = px.pie(df, names='Cidade', values='Chuva', title='Chuva no Rio de Janeiro')
+    fig = apply_updates(fig)
+    return fig
+
+# Função de callback para atualizar o gráfico de linha
+@callback(
+    Output('rain-graph-2', 'figure'),
+    Input('rain-data-store-4', 'data')
+)
+def update_line_chart(data):
+    df = pd.DataFrame(data)
+    fig = px.line(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro')
+    
+    fig = apply_updates(fig)
+    
+    return fig
+
+# Função de callback para atualizar o gráfico de barras
+@callback(
+    Output('rain-graph-3', 'figure'),
+    Input('rain-data-store-4', 'data')
+)
+def update_bar_chart(data):
+    df = pd.DataFrame(data)
+    fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
+    
+    fig = apply_updates(fig)
+    
+    return fig
+
+
 # Função de callback para atualizar o gráfico
 @callback(
     Output('rain-graph-4', 'figure'),
@@ -33,36 +72,7 @@ def update_graph(data):
     # Criando um gráfico com Plotly Express
     fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
 
-    # Atualizando as propriedades dos traços
-    fig.update_traces(
-        hovertemplate="<b>%{x}</b><br>Chuva: %{y} mm",
-        textfont=dict(color="white"),
-        insidetextfont=dict(color="white"),
-        hoverlabel=dict(font=dict(color="white")),
-        marker_line_width=0
-    )
-
-    # Atualizando o layout
-    fig.update_layout(
-        title='',
-        plot_bgcolor='rgba(0,0,0,0)',  # fundo transparente
-        paper_bgcolor='rgba(0,0,0,0)',  # fundo transparente
-        xaxis=dict(showgrid=True, gridcolor='rgba(200,200,200,0.2)', zeroline=False, title_text=''),
-        yaxis=dict(showgrid=True, gridcolor='rgba(200,200,200,0.2)', zeroline=False, title_text=''),
-        margin=dict(l=0, r=0, t=0, b=0),
-        legend=dict(font=dict(color="white")),
-        font=dict(color="white")
-    )
-
-    # Atualizando os eixos x
-    fig.update_xaxes(
-        showgrid=True, 
-        gridcolor='rgba(200,200,200,0.2)', 
-        zeroline=False, 
-        title_text='',
-        nticks=5,
-        tickangle=0,
-    )
+    fig = apply_updates(fig)
 
     return fig
 
@@ -72,16 +82,16 @@ layout = html.Div([
     
     # Div superior com dois gráficos
     html.Div([
-        dcc.Graph(id='rain-graph-4', style={'width': '50%', 'display': 'inline-block'}),
-        dcc.Graph(id='rain-graph-4', style={'width': '50%', 'display': 'inline-block'}),
-    ], style={'width': '100%', 'display': 'inline-block'}),
+        dcc.Graph(id='rain-graph-1', style={'width': '46%', 'height': '40vh', 'display': 'inline-block', 'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '1% 2%'}),
+        dcc.Graph(id='rain-graph-2', style={'width': '46%', 'height': '40vh', 'display': 'inline-block', 'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '1% 2%'}),
+    ]),
     
     # Div inferior com dois gráficos
     html.Div([
-        dcc.Graph(id='rain-graph-4', style={'width': '50%', 'display': 'inline-block'}),
-        dcc.Graph(id='rain-graph-4', style={'width': '50%', 'display': 'inline-block'}),
-    ], style={'width': '100%', 'display': 'inline-block'}),
+        dcc.Graph(id='rain-graph-3', style={'width': '46%', 'height': '40vh', 'display': 'inline-block', 'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '1% 2%'}),
+        dcc.Graph(id='rain-graph-4', style={'width': '46%', 'height': '40vh', 'display': 'inline-block', 'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '1% 2%'}),
+    ]),
     
     dcc.Store(id='rain-data-store-4') 
-    ]
-)
+],)
+

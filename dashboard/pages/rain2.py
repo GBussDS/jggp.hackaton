@@ -10,8 +10,8 @@ dash.register_page(__name__, path="/rain2", name="Chuva2", svg="icons/rain.svg")
 
 # Função de callback para armazenar o DataFrame
 @callback(
-    Output('rain-data-store-2', 'data'),
-    Input('rain-data-store-2', 'id')
+    Output('rain-data-storeB', 'data'),
+    Input('rain-data-storeB', 'id')
 )
 def store_data(id):
     # Criando um DataFrame do zero
@@ -24,8 +24,8 @@ def store_data(id):
 
 # Função de callback para atualizar o gráfico
 @callback(
-    Output('rain-graph-2', 'figure'),
-    Input('rain-data-store-2', 'data')
+    Output('rain-graphB', 'figure'),
+    Input('rain-data-storeB', 'data')
 )
 def update_graph(data):
     df = pd.DataFrame(data)  # Convertendo o dicionário de volta para um DataFrame
@@ -69,6 +69,6 @@ def update_graph(data):
 # Layout do dashboard
 layout = html.Div([
     header("Chuva no Rio de Janeiro"),
-    dcc.Graph(id='rain-graph-2'),
-    dcc.Store(id='rain-data-store-2') 
+    dcc.Graph(id='rain-graphB'),
+    dcc.Store(id='rain-data-storeB') 
 ])

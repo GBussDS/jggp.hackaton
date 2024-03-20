@@ -11,10 +11,48 @@ dash.register_page(__name__, path="/rain4", name="Chuva4", svg="icons/rain.svg")
 
 # Função de callback para armazenar o DataFrame
 @callback(
-    Output('rain-data-store-4', 'data'),
-    Input('rain-data-store-4', 'id')
+    Output('map-data-store', 'data'),
+    Input('map-data-store', 'id')
 )
-def store_data(id):
+def store_map_data(id):
+    # Criando um DataFrame do zero
+    df = pd.DataFrame({
+        'Cidade': ['Flamengo', 'Barra da Tijuca', 'Botafogo', 'Catete', 'Centro'],
+        'Latitude': [-22.933, -23.012, -22.951, -22.926, -22.906],
+        'Longitude': [-43.175, -43.304, -43.184, -43.176, -43.181],
+        'Chuva': [100, 150, 25, 200, 80],
+    })
+
+    return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
+
+
+# Função de callback para atualizar o gráfico de mapa
+@callback(
+    Output('map-graph', 'figure'),
+    Input('map-data-store', 'data')
+)
+def update_map(data):
+    df = pd.DataFrame(data)
+    
+    fig = px.scatter_mapbox(df, lat='Latitude', lon='Longitude', hover_name='Cidade', hover_data=['Chuva'], 
+                            size='Chuva', size_max=15, zoom=10, height=300)
+
+    fig.update_traces(marker=dict(opacity=0.5))  # Define a opacidade do marcador para 50%
+
+
+    fig.update_layout(mapbox_style="carto-positron")  # Usa um estilo de mapa menos detalhado
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
+    return fig
+
+
+
+# Função de callback para armazenar o DataFrame
+@callback(
+    Output('boxplot-data-store', 'data'),
+    Input('boxplot-data-store', 'id')
+)
+def store_boxplot_data(id):
     # Criando um DataFrame do zero
     df = pd.DataFrame({
         'Cidade': ['Flamengo', 'Barra da Tijuca', 'Botafogo', 'Catete', 'Centro'],
@@ -23,75 +61,36 @@ def store_data(id):
 
     return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
 
-# Função de callback para atualizar o gráfico de pizza
+# Função de callback para atualizar o gráfico de boxplot
 @callback(
-    Output('rain-graph-1', 'figure'),
-    Input('rain-data-store-4', 'data')
+    Output('boxplot-graph', 'figure'),
+    Input('boxplot-data-store', 'data')
 )
-def update_pie_chart(data):
+def update_boxplot(data):
     df = pd.DataFrame(data)
-    fig = px.pie(df, names='Cidade', values='Chuva', title='Chuva no Rio de Janeiro')
-    fig = apply_updates(fig)
-    return fig
-
-# Função de callback para atualizar o gráfico de linha
-@callback(
-    Output('rain-graph-2', 'figure'),
-    Input('rain-data-store-4', 'data')
-)
-def update_line_chart(data):
-    df = pd.DataFrame(data)
-    fig = px.line(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro')
-    
-    fig = apply_updates(fig)
-    
-    return fig
-
-# Função de callback para atualizar o gráfico de barras
-@callback(
-    Output('rain-graph-3', 'figure'),
-    Input('rain-data-store-4', 'data')
-)
-def update_bar_chart(data):
-    df = pd.DataFrame(data)
-    fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
+    fig = px.box(df, y='Chuva', title='Boxplot da Chuva no Rio de Janeiro')
     
     fig = apply_updates(fig)
     
     return fig
 
 
-# Função de callback para atualizar o gráfico
-@callback(
-    Output('rain-graph-4', 'figure'),
-    Input('rain-data-store-4', 'data')
-)
-def update_graph(data):
-    df = pd.DataFrame(data)  # Convertendo o dicionário de volta para um DataFrame
-
-    # Criando um gráfico com Plotly Express
-    fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
-
-    fig = apply_updates(fig)
-
-    return fig
-
-# Layout do dashboard
 layout = html.Div([
     header("Chuva no Rio de Janeiro"),
     
-    # Div superior com dois gráficos
     html.Div([
-        dcc.Graph(id='rain-graph-1', style={'width': '46%', 'height': '40vh', 'display': 'inline-block', 'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '1% 2%'}),
-        dcc.Graph(id='rain-graph-2', style={'width': '46%', 'height': '40vh', 'display': 'inline-block', 'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '1% 2%'}),
-    ]),
+        html.Div([
+            html.H1("Mapa do Rio de Janeiro", style={'textAlign': 'center', 'fontSize': '20px'}),
+            dcc.Graph(id='map-graph', style={'width': '90%', 'height': '80vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '88vh', 'width': '45vw'}),
+
+        html.Div([
+            html.H1("Boxplot da Chuva", style={'textAlign': 'center', 'fontSize': '20px'}),
+            dcc.Graph(id='boxplot-graph', style={'width': '90%', 'height': '80vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '88vh', 'width': '45vw'}),
+    ], style={'display': 'flex'}),
     
-    # Div inferior com dois gráficos
-    html.Div([
-        dcc.Graph(id='rain-graph-3', style={'width': '46%', 'height': '40vh', 'display': 'inline-block', 'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '1% 2%'}),
-        dcc.Graph(id='rain-graph-4', style={'width': '46%', 'height': '40vh', 'display': 'inline-block', 'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '1% 2%'}),
-    ]),
-    
-    dcc.Store(id='rain-data-store-4') 
+    dcc.Store(id='map-data-store'),
+    dcc.Store(id='boxplot-data-store')
 ],)
 

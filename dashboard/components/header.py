@@ -18,7 +18,7 @@ def header(nome):
                     "gap": "0.5rem",
                     'alignItems':'center',
                     'justifyContent':'space-between',
-                    'margin':'0 2vw',
+                    'margin':'0 2.5vw',
                 }
             ),
         ],

@@ -4,14 +4,15 @@ from dash import dcc, html, Dash, callback, Output, Input
 import dash
 
 from components.header import header
+from components.apply import apply_updates
 
 # Registrando a página
 dash.register_page(__name__, path="/rain2", name="Chuva2", svg="icons/rain.svg")
 
 # Função de callback para armazenar o DataFrame
 @callback(
-    Output('rain-data-storeB', 'data'),
-    Input('rain-data-storeB', 'id')
+    Output('rain-data-store-4B', 'data'),
+    Input('rain-data-store-4B', 'id')
 )
 def store_data(id):
     # Criando um DataFrame do zero
@@ -22,10 +23,48 @@ def store_data(id):
 
     return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
 
+# Função de callback para atualizar o gráfico de pizza
+@callback(
+    Output('rain-graph-1B', 'figure'),
+    Input('rain-data-store-4B', 'data')
+)
+def update_pie_chart(data):
+    df = pd.DataFrame(data)
+    fig = px.pie(df, names='Cidade', values='Chuva', title='Chuva no Rio de Janeiro')
+    fig = apply_updates(fig)
+    return fig
+
+# Função de callback para atualizar o gráfico de linha
+@callback(
+    Output('rain-graph-2B', 'figure'),
+    Input('rain-data-store-4B', 'data')
+)
+def update_line_chart(data):
+    df = pd.DataFrame(data)
+    fig = px.line(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro')
+    
+    fig = apply_updates(fig)
+    
+    return fig
+
+# Função de callback para atualizar o gráfico de barras
+@callback(
+    Output('rain-graph-3B', 'figure'),
+    Input('rain-data-store-4B', 'data')
+)
+def update_bar_chart(data):
+    df = pd.DataFrame(data)
+    fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
+    
+    fig = apply_updates(fig)
+    
+    return fig
+
+
 # Função de callback para atualizar o gráfico
 @callback(
-    Output('rain-graphB', 'figure'),
-    Input('rain-data-storeB', 'data')
+    Output('rain-graph-4B', 'figure'),
+    Input('rain-data-store-4B', 'data')
 )
 def update_graph(data):
     df = pd.DataFrame(data)  # Convertendo o dicionário de volta para um DataFrame
@@ -33,42 +72,36 @@ def update_graph(data):
     # Criando um gráfico com Plotly Express
     fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
 
-    # Atualizando as propriedades dos traços
-    fig.update_traces(
-        hovertemplate="<b>%{x}</b><br>Chuva: %{y} mm",
-        textfont=dict(color="white"),
-        insidetextfont=dict(color="white"),
-        hoverlabel=dict(font=dict(color="white")),
-        marker_line_width=0
-    )
-
-    # Atualizando o layout
-    fig.update_layout(
-        title='',
-        plot_bgcolor='rgba(0,0,0,0)',  # fundo transparente
-        paper_bgcolor='rgba(0,0,0,0)',  # fundo transparente
-        xaxis=dict(showgrid=True, gridcolor='rgba(200,200,200,0.2)', zeroline=False, title_text=''),
-        yaxis=dict(showgrid=True, gridcolor='rgba(200,200,200,0.2)', zeroline=False, title_text=''),
-        margin=dict(l=0, r=0, t=0, b=0),
-        legend=dict(font=dict(color="white")),
-        font=dict(color="white")
-    )
-
-    # Atualizando os eixos x
-    fig.update_xaxes(
-        showgrid=True, 
-        gridcolor='rgba(200,200,200,0.2)', 
-        zeroline=False, 
-        title_text='',
-        nticks=5,
-        tickangle=0,
-    )
+    fig = apply_updates(fig)
 
     return fig
 
 # Layout do dashboard
 layout = html.Div([
     header("Chuva no Rio de Janeiro"),
-    dcc.Graph(id='rain-graphB'),
-    dcc.Store(id='rain-data-storeB') 
-])
+    
+    html.Div([
+        html.Div([
+            html.H1("Gráfico 1", style={'textAlign': 'center', 'fontSize': '20px'}),
+            dcc.Graph(id='rain-graph-1B', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
+
+        html.Div([
+            html.H1("Gráfico 2", style={'textAlign': 'center', 'fontSize': '20px'}),
+            dcc.Graph(id='rain-graph-2B', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
+
+        html.Div([
+            html.H1("Gráfico 3", style={'textAlign': 'center', 'fontSize': '20px'}),
+            dcc.Graph(id='rain-graph-3B', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
+
+        html.Div([
+            html.H1("Gráfico 4", style={'textAlign': 'center', 'fontSize': '20px'}),
+            dcc.Graph(id='rain-graph-4B', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
+    ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
+    
+    dcc.Store(id='rain-data-store-4B') 
+],)
+

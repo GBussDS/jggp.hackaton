@@ -3,7 +3,7 @@ import plotly.express as px
 def apply_updates(fig):
     # Atualizando as propriedades dos traços
     fig.update_traces(
-        textfont=dict(color="white"),
+        #textfont=dict(color="white"),
         #insidetextfont=dict(color="white"),
         hoverlabel=dict(font=dict(color="white")),
         marker_line_width=0

@@ -5,9 +5,10 @@ import dash
 
 from components.header import header
 from components.apply import apply_updates
+from components.container import create_container_graph
 
 # Registrando a página
-dash.register_page(__name__, path="/rain3", name="Chuva3", svg="icons/rain.svg")
+dash.register_page(__name__, path="/rain3", name="Chuva3")
 
 # Função de callback para armazenar o DataFrame
 @callback(
@@ -81,27 +82,12 @@ layout = html.Div([
     header("Chuva no Rio de Janeiro"),
     
     html.Div([
-        html.Div([
-            html.H1("Gráfico 1", style={'textAlign': 'center', 'fontSize': '20px'}),
-            dcc.Graph(id='rain-graph-1C', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
-        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
-
-        html.Div([
-            html.H1("Gráfico 2", style={'textAlign': 'center', 'fontSize': '20px'}),
-            dcc.Graph(id='rain-graph-2C', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
-        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
-
-        html.Div([
-            html.H1("Gráfico 3", style={'textAlign': 'center', 'fontSize': '20px'}),
-            dcc.Graph(id='rain-graph-3C', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
-        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
-
-        html.Div([
-            html.H1("Gráfico 4", style={'textAlign': 'center', 'fontSize': '20px'}),
-            dcc.Graph(id='rain-graph-4C', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
-        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
+        create_container_graph('rain-graph-1C', "Gráfico 1"),
+        create_container_graph('rain-graph-2C', "Gráfico 2"),
+        create_container_graph('rain-graph-3C', "Gráfico 3"),
+        create_container_graph('rain-graph-4C', "Gráfico 4"),
     ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
     
     dcc.Store(id='rain-data-store-4C') 
-],)
-
+],
+)

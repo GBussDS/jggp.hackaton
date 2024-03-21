@@ -1,9 +1,6 @@
 import dash
 from dash import dcc, html, Dash
 import plotly.express as px
-from threading import Thread
-import sys
-import webview
 import os
 
 from components.sidebar import sidebar
@@ -39,12 +36,6 @@ app.layout = html.Div(
         dash.page_container
     ],
     className="my_app",
-    style={
-        "width": "100vw",
-        "height": "100vh",
-        "display": "flex",
-        "flexDirection": "row",
-    },
 )
 
 

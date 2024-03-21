@@ -6,9 +6,10 @@ import geopandas as gpd
 
 from components.header import header
 from components.apply import apply_updates
+from components.container import create_large_container_graph
 
 # Registrando a página
-dash.register_page(__name__, path="/rain4", name="Chuva4", svg="icons/rain.svg")
+dash.register_page(__name__, path="/rain4", name="Chuva4")
 
 # Função de callback para armazenar o DataFrame
 # @callback(
@@ -107,22 +108,15 @@ def update_boxplot(data):
     return fig
 
 
+# Layout of the dashboard
 layout = html.Div([
     header("Chuva no Rio de Janeiro"),
     
     html.Div([
-        html.Div([
-            html.H1("Mapa do Rio de Janeiro", style={'textAlign': 'center', 'fontSize': '20px'}),
-            dcc.Graph(id='map-graph', style={'width': '90%', 'height': '80vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
-        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '88vh', 'width': '45vw'}),
-
-        html.Div([
-            html.H1("Boxplot da Chuva", style={'textAlign': 'center', 'fontSize': '20px'}),
-            dcc.Graph(id='boxplot-graph', style={'width': '90%', 'height': '80vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
-        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '88vh', 'width': '45vw'}),
-    ], style={'display': 'flex'}),
+        create_large_container_graph('map-graph', "Mapa do Rio de Janeiro"),
+        create_large_container_graph('boxplot-graph', "Boxplot da Chuva"),
+    ], style={'display': 'flex', 'paddingRight': '5%'}),
     
     dcc.Store(id='map-data-store'),
     dcc.Store(id='boxplot-data-store')
 ],)
-

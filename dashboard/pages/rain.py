@@ -74,7 +74,8 @@ def update_bar_chart(data):
     title='Estação'
     )
     fig.update_yaxes(
-        title='Precipitação (mm)'
+        title='Precipitação (mm)',
+        title_font=dict(size=13)
     )
     
     return fig
@@ -102,9 +103,9 @@ layout = html.Div([
     html.Div([
         create_container_graph('rain-graph-1A', "Gráfico 1"),
         create_container_graph('rain-graph-2A', "Gráfico 2"),
-        create_container_graph('rain-graph-3A', "Gráfico 3"),
+        create_container_graph('rain-graph-3A', "Precipitação por estação"),
         create_container_graph('rain-graph-4A', "Gráfico 4"),
     ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
     
     dcc.Store(id='rain-data-store-4A') 
-],)
+])

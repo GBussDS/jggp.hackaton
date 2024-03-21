@@ -1,9 +1,6 @@
 import dash
 from dash import dcc, html, Dash
 import plotly.express as px
-from threading import Thread
-import sys
-import webview
 import os
 
 from components.sidebar import sidebar

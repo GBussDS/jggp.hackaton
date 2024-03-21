@@ -16,12 +16,7 @@ dash.register_page(__name__, path="/rain4", name="Chuva4", svg="icons/rain.svg")
 )
 def store_map_data(id):
     # Criando um DataFrame do zero
-    df = pd.DataFrame({
-        'Cidade': ['Flamengo', 'Barra da Tijuca', 'Botafogo', 'Catete', 'Centro'],
-        'Latitude': [-22.933, -23.012, -22.951, -22.926, -22.906],
-        'Longitude': [-43.175, -43.304, -43.184, -43.176, -43.181],
-        'Chuva': [100, 150, 25, 200, 80],
-    })
+    df = pd.read_csv('../data/drenagem.csv')
 
     return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
 
@@ -34,13 +29,53 @@ def store_map_data(id):
 def update_map(data):
     df = pd.DataFrame(data)
     
-    fig = px.scatter_mapbox(df, lat='Latitude', lon='Longitude', hover_name='Cidade', hover_data=['Chuva'], 
-                            size='Chuva', size_max=15, zoom=10, height=300)
+    fig = px.scatter_mapbox(df, lat='latitude', lon='longitude', hover_name='classe', hover_data=['data_atualizacao'], 
+                            size=10, size_max=15, zoom=10, height=300)
 
     fig.update_traces(marker=dict(opacity=0.5))  # Define a opacidade do marcador para 50%
 
 
     fig.update_layout(mapbox_style="carto-positron")  # Usa um estilo de mapa menos detalhado
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
+    return fig
+
+import pandas as pd
+import geopandas as gpd
+import plotly.express as px
+
+@callback(
+    Output('map-data-store', 'data'),
+    Input('map-data-store', 'id')
+)
+def store_map_data(id):
+    # Load the CSV file into a DataFrame
+    df = pd.read_csv('../data/bairros.csv')
+
+    # Convert the 'geometry_wkt' column to a GeoSeries
+    df['geometry'] = gpd.GeoSeries.from_wkt(df['geometry_wkt'])
+
+    # Convert the DataFrame to a GeoDataFrame
+    gdf = gpd.GeoDataFrame(df, geometry='geometry')
+
+    return gdf.to_dict('records')  # Convert the GeoDataFrame to a dictionary
+
+@callback(
+    Output('map-graph', 'figure'),
+    Input('map-data-store', 'data')
+)
+def update_map(data):
+    # Convert the data back into a GeoDataFrame
+    gdf = gpd.GeoDataFrame(data)
+
+    # Create a scatter mapbox figure
+    fig = px.scatter_mapbox(gdf, lat=gdf.geometry.y, lon=gdf.geometry.x, 
+                            hover_name='classe', hover_data=['data_atualizacao'], 
+                            size=10, size_max=15, zoom=10, height=300)
+
+    fig.update_traces(marker=dict(opacity=0.5))  # Set the marker opacity to 50%
+
+    fig.update_layout(mapbox_style="carto-positron")  # Use a less detailed map style
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
     return fig

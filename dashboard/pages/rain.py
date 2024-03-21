@@ -54,10 +54,26 @@ def update_line_chart(data):
     Input('rain-data-store-4A', 'data')
 )
 def update_bar_chart(data):
-    df = pd.read_csv("data/taxa_precipitacao_alertario_2023.csv")
-    fig = px.bar(df, x='id_estacao', y='acumulado_chuva_15_min', title='Acumulados por estação em 2023', color_discrete_sequence=["#0042AB"])
-    
+    precipitacao_alertario = pd.read_csv("dashboard/data/taxa_precipitacao_alertario_2023.csv")
+    precipitacao_alertario = precipitacao_alertario.groupby("id_estacao")["acumulado_chuva_15_min"].sum()
+    estacoes = pd.read_csv("dashboard/data/estacoes.csv")
+    estacoes = dict(zip(estacoes['id_estacao'], estacoes['estacao']))
+    precipitacao_alertario = precipitacao_alertario.rename(estacoes)
+    precipitacao_alertario = precipitacao_alertario.nlargest(5)
+    fig = px.bar(precipitacao_alertario, x= precipitacao_alertario.index, y=precipitacao_alertario.values, title='Acumulados por estação em 2023', color_discrete_sequence=["#0042AB"])
+
     fig = apply_updates(fig)
+    fig.update_layout(
+        xaxis=dict(
+            tickangle=-20  # Permite que os rótulos do eixo x ajustem automaticamente a margem para ajustar o texto
+        )
+    )
+    fig.update_xaxes(
+    title='Estação'
+    )
+    fig.update_yaxes(
+        title='Precipitação (mm)'
+    )
     
     return fig
 
@@ -93,7 +109,7 @@ layout = html.Div([
         ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
 
         html.Div([
-            html.H1("Gráfico 3", style={'textAlign': 'center', 'fontSize': '20px'}),
+            html.H1("Precipitação por estação", style={'textAlign': 'center', 'fontSize': '20px'}),
             dcc.Graph(id='rain-graph-3A', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
         ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '45vw',}),
 

@@ -39,12 +39,6 @@ app.layout = html.Div(
         dash.page_container
     ],
     className="my_app",
-    style={
-        "width": "100vw",
-        "height": "100vh",
-        "display": "flex",
-        "flexDirection": "row",
-    },
 )
 
 

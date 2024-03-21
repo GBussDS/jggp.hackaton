@@ -22,17 +22,14 @@ def header(nome):
                 }
             ),
         ],
-        className="header container-style",
+        className="header",
         style={
             "padding": "0.1rem",
             "borderRadius": "10px",
             "backgroundColor": "#000000",
-            "width": "92vw",
-            "height": "60px",
-            "marginRight": "10px",
+            "width": "97%",
+            "marginRight": "0%",
             "marginTop": "5px",
-            'alignItems':'center',
-            'justifyContent':'center',
         } 
     )
 

@@ -8,12 +8,12 @@ from components.apply import apply_updates
 from components.container import create_container_graph
 
 # Registrando a página
-dash.register_page(__name__, path="/rain2", name="Chuva2")
+dash.register_page(__name__, path="/rain5", name="Chuva5")
 
 # Função de callback para armazenar o DataFrame
 @callback(
-    Output('rain-data-store-4B', 'data'),
-    Input('rain-data-store-4B', 'id')
+    Output('rain-data-store-4E', 'data'),
+    Input('rain-data-store-4E', 'id')
 )
 def store_data(id):
     # Criando um DataFrame do zero
@@ -26,8 +26,8 @@ def store_data(id):
 
 # Função de callback para atualizar o gráfico de pizza
 @callback(
-    Output('rain-graph-1B', 'figure'),
-    Input('rain-data-store-4B', 'data')
+    Output('rain-graph-1E', 'figure'),
+    Input('rain-data-store-4E', 'data')
 )
 def update_pie_chart(data):
     df = pd.DataFrame(data)
@@ -37,8 +37,8 @@ def update_pie_chart(data):
 
 # Função de callback para atualizar o gráfico de linha
 @callback(
-    Output('rain-graph-2B', 'figure'),
-    Input('rain-data-store-4B', 'data')
+    Output('rain-graph-2E', 'figure'),
+    Input('rain-data-store-4E', 'data')
 )
 def update_line_chart(data):
     df = pd.DataFrame(data)
@@ -50,8 +50,8 @@ def update_line_chart(data):
 
 # Função de callback para atualizar o gráfico de barras
 @callback(
-    Output('rain-graph-3B', 'figure'),
-    Input('rain-data-store-4B', 'data')
+    Output('rain-graph-3E', 'figure'),
+    Input('rain-data-store-4E', 'data')
 )
 def update_bar_chart(data):
     df = pd.DataFrame(data)
@@ -64,8 +64,8 @@ def update_bar_chart(data):
 
 # Função de callback para atualizar o gráfico
 @callback(
-    Output('rain-graph-4B', 'figure'),
-    Input('rain-data-store-4B', 'data')
+    Output('rain-graph-4E', 'figure'),
+    Input('rain-data-store-4E', 'data')
 )
 def update_graph(data):
     df = pd.DataFrame(data)  # Convertendo o dicionário de volta para um DataFrame
@@ -82,12 +82,12 @@ layout = html.Div([
     header("Chuva no Rio de Janeiro"),
     
     html.Div([
-        create_container_graph('rain-graph-1B', "Gráfico 1"),
-        create_container_graph('rain-graph-2B', "Gráfico 2"),
-        create_container_graph('rain-graph-3B', "Gráfico 3"),
-        create_container_graph('rain-graph-4B', "Gráfico 4"),
+        create_container_graph('rain-graph-1E', "Gráfico 1"),
+        create_container_graph('rain-graph-2E', "Gráfico 2"),
+        create_container_graph('rain-graph-3E', "Gráfico 3"),
+        create_container_graph('rain-graph-4E', "Gráfico 4"),
     ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
     
-    dcc.Store(id='rain-data-store-4B') 
+    dcc.Store(id='rain-data-store-4E') 
 ],
 )

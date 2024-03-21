@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 from dash import dcc, html, Dash, callback, Output, Input
 import dash
+import os
 
 from components.header import header
 from components.apply import apply_updates
@@ -53,8 +54,8 @@ def update_line_chart(data):
     Input('rain-data-store-4A', 'data')
 )
 def update_bar_chart(data):
-    df = pd.DataFrame(data)
-    fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
+    df = pd.read_csv("data/taxa_precipitacao_alertario_2023.csv")
+    fig = px.bar(df, x='id_estacao', y='acumulado_chuva_15_min', title='Acumulados por estação em 2023', color_discrete_sequence=["#0042AB"])
     
     fig = apply_updates(fig)
     

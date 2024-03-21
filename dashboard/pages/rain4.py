@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 from dash import dcc, html, Dash, callback, Output, Input
 import dash
+import geopandas as gpd
 
 from components.header import header
 from components.apply import apply_updates
@@ -10,39 +11,35 @@ from components.apply import apply_updates
 dash.register_page(__name__, path="/rain4", name="Chuva4", svg="icons/rain.svg")
 
 # Função de callback para armazenar o DataFrame
-@callback(
-    Output('map-data-store', 'data'),
-    Input('map-data-store', 'id')
-)
-def store_map_data(id):
-    # Criando um DataFrame do zero
-    df = pd.read_csv('../data/drenagem.csv')
+# @callback(
+#     Output('map-data-store', 'data'),
+#     Input('map-data-store', 'id')
+# )
+# def store_map_data(id):
+#     # Criando um DataFrame do zero
+#     df = pd.read_csv('../data/drenagem.csv')
 
-    return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
+#     return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
 
 
-# Função de callback para atualizar o gráfico de mapa
-@callback(
-    Output('map-graph', 'figure'),
-    Input('map-data-store', 'data')
-)
-def update_map(data):
-    df = pd.DataFrame(data)
+# # Função de callback para atualizar o gráfico de mapa
+# @callback(
+#     Output('map-graph', 'figure'),
+#     Input('map-data-store', 'data')
+# )
+# def update_map(data):
+#     df = pd.DataFrame(data)
     
-    fig = px.scatter_mapbox(df, lat='latitude', lon='longitude', hover_name='classe', hover_data=['data_atualizacao'], 
-                            size=10, size_max=15, zoom=10, height=300)
+#     fig = px.scatter_mapbox(df, lat='latitude', lon='longitude', hover_name='classe', hover_data=['data_atualizacao'], 
+#                             size=10, size_max=15, zoom=10, height=300)
 
-    fig.update_traces(marker=dict(opacity=0.5))  # Define a opacidade do marcador para 50%
+#     fig.update_traces(marker=dict(opacity=0.5))  # Define a opacidade do marcador para 50%
 
 
-    fig.update_layout(mapbox_style="carto-positron")  # Usa um estilo de mapa menos detalhado
-    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+#     fig.update_layout(mapbox_style="carto-positron")  # Usa um estilo de mapa menos detalhado
+#     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
-    return fig
-
-import pandas as pd
-import geopandas as gpd
-import plotly.express as px
+#     return fig
 
 @callback(
     Output('map-data-store', 'data'),

@@ -15,6 +15,7 @@ global_styles = os.path.join("dashboard/assets/styles", "styles.css")
 
 px.defaults.template = "ggplot2"
 
+
 app = Dash(
     __name__, 
     pages_folder="pages", 

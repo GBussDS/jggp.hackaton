@@ -11,14 +11,14 @@ from components.container import create_large_container_graph
 # Registrando a página
 dash.register_page(__name__, path="/rain4", name="Chuva4")
 
-# Função de callback para armazenar o DataFrame
+# # Função de callback para armazenar o DataFrame
 # @callback(
 #     Output('map-data-store', 'data'),
 #     Input('map-data-store', 'id')
 # )
 # def store_map_data(id):
 #     # Criando um DataFrame do zero
-#     df = pd.read_csv('../data/drenagem.csv')
+#     df = pd.read_csv('dashboard/data/drenagem.csv')
 
 #     return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
 
@@ -42,13 +42,15 @@ dash.register_page(__name__, path="/rain4", name="Chuva4")
 
 #     return fig
 
+from shapely import wkt
+
 @callback(
     Output('map-data-store', 'data'),
     Input('map-data-store', 'id')
 )
 def store_map_data(id):
     # Load the CSV file into a DataFrame
-    df = pd.read_csv('../data/bairros.csv')
+    df = pd.read_csv('dashboard/data/bairros.csv')
 
     # Convert the 'geometry_wkt' column to a GeoSeries
     df['geometry'] = gpd.GeoSeries.from_wkt(df['geometry_wkt'])
@@ -56,7 +58,15 @@ def store_map_data(id):
     # Convert the DataFrame to a GeoDataFrame
     gdf = gpd.GeoDataFrame(df, geometry='geometry')
 
+    # Set 'geometry' as the active geometry column
+    gdf = gdf.set_geometry('geometry')
+
+    # Convert the 'geometry' column to WKT format
+    gdf['geometry'] = gdf['geometry'].apply(lambda geom: wkt.dumps(geom))
+
     return gdf.to_dict('records')  # Convert the GeoDataFrame to a dictionary
+
+from shapely import wkt
 
 @callback(
     Output('map-graph', 'figure'),
@@ -66,17 +76,27 @@ def update_map(data):
     # Convert the data back into a GeoDataFrame
     gdf = gpd.GeoDataFrame(data)
 
-    # Create a scatter mapbox figure
-    fig = px.scatter_mapbox(gdf, lat=gdf.geometry.y, lon=gdf.geometry.x, 
-                            hover_name='classe', hover_data=['data_atualizacao'], 
-                            size=10, size_max=15, zoom=10, height=300)
+    # Convert the 'geometry' column back to Polygon objects
+    gdf['geometry'] = gdf['geometry'].apply(lambda wkt_string: wkt.loads(wkt_string))
 
-    fig.update_traces(marker=dict(opacity=0.5))  # Set the marker opacity to 50%
+    # Set 'geometry' as the active geometry column
+    gdf = gdf.set_geometry('geometry')
+
+    # Calculate the centroid of each polygon
+    gdf['centroid'] = gdf['geometry'].centroid
+
+    # Create a scatter mapbox figure using the centroids
+    fig = px.scatter_mapbox(gdf, lat=gdf.centroid.y, lon=gdf.centroid.x, 
+                            hover_name='nome', hover_data=['area'], 
+                            zoom=10, height=300)
+
+    fig.update_traces(marker=dict(opacity=0.5, size=10))  # Set the marker opacity to 50% and size to 10
 
     fig.update_layout(mapbox_style="carto-positron")  # Use a less detailed map style
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
     return fig
+
 
 
 

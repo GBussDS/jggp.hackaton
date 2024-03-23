@@ -7,9 +7,14 @@ import folium
 from branca.colormap import linear
 from shapely.geometry import Point
 from components.header import header
+import os
+from google.cloud import bigquery
 
 # Registrando a página
 dash.register_page(__name__, path="/bairros", name="Bairros")
+
+# Crie uma instância do cliente BigQuery
+client = bigquery.Client(project='hackaton-fgv-guris')
 
 @callback(
     Output('map-data-store', 'data'),
@@ -18,13 +23,24 @@ dash.register_page(__name__, path="/bairros", name="Bairros")
     Input('map-data-store', 'id')
 )
 def store_map_data(id):
+    # Faça a consulta SQL
+    # query = """
+    # SELECT *
+    # FROM datario.clima_pluviometro.taxa_precipitacao_inea
+    # """
+    # query_job = client.query(query)
+
     df = pd.read_csv('dashboard/data/bairros.csv')
-    new_df = pd.DataFrame({'nome':df['nome'],'geometry': df['geometry_wkt']})
+    new_df = pd.DataFrame({'nome': df['nome'], 'geometry': df['geometry_wkt']})
     new_df['geometry'] = new_df['geometry']
     gdf_dict = new_df.to_dict()
 
-    df_chuva = pd.read_csv('dashboard/data/acumulado_chuva.csv').dropna().to_dict()
-    df_estacoes = pd.read_csv('dashboard/data/estacoes_alertario.csv').to_dict()
+    df_chuva = pd.read_csv('dashboard/data/acumulado_chuva_websirene.csv').dropna()
+    df_chuva['horario'] = pd.to_datetime(df_chuva['horario'])  # Convert to datetime
+    # Keep only the latest entry for each id_estacao
+    df_chuva = df_chuva.sort_values('horario').groupby('id_estacao').tail(1)
+    df_chuva = df_chuva.rename(columns={'acumulado_chuva_24_h': 'acumulado_chuva_24h'}).to_dict()
+    df_estacoes = pd.read_csv('dashboard/data/estacoes_websirene.csv').to_dict()
 
     return gdf_dict, df_chuva, df_estacoes
 
@@ -43,11 +59,20 @@ def update_map(map_data, chuva_data, estacoes_data):
     merged_df = pd.merge(df_chuva, df_estacoes, on='id_estacao', how='inner')
 
     df['geometry'] = df['geometry'].apply(loads)
-    gdf = gpd.GeoDataFrame(df, geometry='geometry')  
+    gdf = gpd.GeoDataFrame(df, geometry='geometry')
 
     # Create a map centered around the center of your GeoDataFrame
-    m = folium.Map(location=[gdf.geometry.centroid.y.mean()-0.1, gdf.geometry.centroid.x.mean()-0.12], zoom_start=11)
-    
+    m = folium.Map(location=[gdf.geometry.centroid.y.mean()-0.07, gdf.geometry.centroid.x.mean()+0.04], zoom_start=11.5, tiles =None)
+
+    # Define the tile layer URL
+    tile_url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png'
+
+    # Define attribution
+    attribution = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+
+    # Add the tile layer
+    folium.TileLayer(tile_url, attr=attribution, name='CartoDB Voyager Labels Under').add_to(m)
+
     # Sort thresholds for colormap
     sorted_thresholds = sorted(df_chuva['acumulado_chuva_24h'].unique())
     colormap = linear.YlGnBu_09.scale(min(sorted_thresholds), max(sorted_thresholds))
@@ -56,22 +81,37 @@ def update_map(map_data, chuva_data, estacoes_data):
     colormap.caption = 'Rain Accumulation (24h)'
     m.add_child(colormap)
 
+    # Create a mapping between polygons and stations inside them
+    station_polygon_map = {}
+    for _, station in df_estacoes.iterrows():
+        station_point = Point(station['longitude'], station['latitude'])
+        for _, r in gdf.iterrows():
+            if station_point.within(r.geometry):
+                if r.name not in station_polygon_map:
+                    station_polygon_map[r.name] = []
+                station_polygon_map[r.name].append(station['id_estacao'])
+
     for _, r in gdf.iterrows():
         # Create a shapely Point for the centroid of the polygon
         polygon_centroid = Point(r.geometry.centroid.x, r.geometry.centroid.y)
+
+        # Get all stations inside this polygon
+        stations_inside_polygon = station_polygon_map.get(r.name, [])
         
-        # Iterate through stations to find stations inside the polygon
-        for _, station in df_estacoes.iterrows():
-            station_point = Point(station['longitude'], station['latitude'])
-            if station_point.within(r.geometry):
-                # Determine color based on 'acumulado_chuva_24_h'
-                color = colormap(df_chuva.loc[df_chuva['id_estacao'] == station['id_estacao'], 'acumulado_chuva_24h'].iloc[0])
-                # Create GeoJSON for the polygon
-                geo_j = folium.GeoJson(data=r.geometry.__geo_interface__,
-                                    style_function=lambda x: {'fillColor': color, 'fillOpacity': 0.7, 'color': 'black'})
-                folium.Popup(r['nome']).add_to(geo_j)
-                geo_j.add_to(m)
-                break
+        if stations_inside_polygon:
+            # Get the relevant data for these stations
+            station_data = merged_df[merged_df['id_estacao'].isin(stations_inside_polygon)]
+            # Calculate the mean of 'acumulado_chuva_24h' for these stations
+            mean_chuva = station_data['acumulado_chuva_24h'].mean()
+            # Determine color based on the mean
+            color = colormap(mean_chuva)
+            
+            # Create GeoJSON for the polygon
+            geo_j = folium.GeoJson(data=r.geometry.__geo_interface__,
+                                style_function=lambda x, color=color: {'fillColor': color, 'fillOpacity': 1, 'color': 'black'})
+            folium.Popup(f"{r['nome']}\n\nAcumulado:{mean_chuva}").add_to(geo_j)
+            geo_j.add_to(m)
+
 
     # Display the map
     m_html = m._repr_html_()

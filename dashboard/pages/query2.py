@@ -6,49 +6,40 @@ from google.cloud import bigquery
 
 from components.header import header
 from components.apply import apply_updates
-from components.container import create_container_graph
+from components.container import create_large_container_graph
 
-# Crie uma instância do cliente BigQuery
-client = bigquery.Client(project='hackaton-fgv-guris')
+from data.data_query import df_ocorrencias
 
-# Faça a consulta SQL
-query = """
-SELECT *
-FROM `datario.adm_cor_comando.ocorrencias`
-"""
-query_job = client.query(query)
-
-
-# Registrando a página
 dash.register_page(__name__, path="/query2", name="Sou uma query")
 
-# Função de callback para fazer a consulta e armazenar os dados das ocorrências
+# Passa dados
 @callback(
     Output('ocorrencias-data-store', 'data'),
     Input('ocorrencias-data-store', 'id')
 )
 def store_ocorrencias_data(id):
-    # Converta o resultado da consulta em um DataFrame
-    df_ocorrencias = query_job.to_dataframe()
+    df = df_ocorrencias
 
-    return df_ocorrencias.to_dict('records')  # Convertendo o DataFrame para um dicionário
+    return df.to_dict('records')  
 
-# Função de callback para atualizar o gráfico de barras das ocorrências
+# Faz o Gráfico
 @callback(
     Output('ocorrencias-graph', 'figure'),
     Input('ocorrencias-data-store', 'data')
 )
 def update_ocorrencias_chart(data):
-    df = pd.DataFrame(data)  # Converta os dados de volta para um DataFrame
-    
-    # Agrupe os dados por bairro e gravidade e conte o número de ocorrências
-    df_grouped = df.groupby(['bairro', 'gravidade']).size().reset_index(name='count')
-    
-    print(df_grouped)
+    df = pd.DataFrame(data)
+    id_pop_list = ["32", "35", "28", "31", "6", "16", "33", "5"]
+    df = df[df['id_pop'].isin(id_pop_list)] # Filtra pelos que importa
+    df_grouped = df.groupby(['bairro', 'gravidade']).size().reset_index(name='count') # Agrupa os dados por bairro e gravidade
     
     # Crie o gráfico de barras
-    fig = px.bar(df_grouped, x='bairro', y='count', color='gravidade', title='Número de ocorrências por gravidade e bairro', color_discrete_sequence=["#0042AB"])
+    fig = px.bar(df_grouped, x='bairro', y='count', 
+                 color='gravidade', 
+                 title='Número de ocorrências por bairro', 
+                 color_discrete_sequence=["#0042AB"])
     
+    fig = apply_updates(fig)
     return fig
 
 
@@ -56,7 +47,9 @@ def update_ocorrencias_chart(data):
 layout = html.Div([
     header("Chuva no Rio de Janeiro"),
     
-    dcc.Graph(id='ocorrencias-graph'),
+    html.Div([
+        create_large_container_graph('ocorrencias-graph', "Gráfico de Ocorrências"),
+    ], style={'display': 'flex', 'paddingRight': '5%'}),
     
     dcc.Store(id='ocorrencias-data-store'),
     dcc.Store(id='procedimento-data-store'),

@@ -7,6 +7,7 @@ import folium
 from branca.colormap import linear
 from shapely.geometry import Point
 from components.header import header
+import os
 
 # Registrando a página
 dash.register_page(__name__, path="/rain4", name="Chuva4")
@@ -46,8 +47,17 @@ def update_map(map_data, chuva_data, estacoes_data):
     gdf = gpd.GeoDataFrame(df, geometry='geometry')  
 
     # Create a map centered around the center of your GeoDataFrame
-    m = folium.Map(location=[gdf.geometry.centroid.y.mean()-0.1, gdf.geometry.centroid.x.mean()-0.12], zoom_start=11)
+    m = folium.Map(location=[gdf.geometry.centroid.y.mean()-0.09, gdf.geometry.centroid.x.mean()-0.12], zoom_start=11, tiles =None)
     
+    # Define the tile layer URL
+    tile_url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png'
+
+    # Define attribution
+    attribution = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+
+    # Add the tile layer
+    folium.TileLayer(tile_url, attr=attribution, name='CartoDB Voyager Labels Under').add_to(m)
+
     # Sort thresholds for colormap
     sorted_thresholds = sorted(df_chuva['acumulado_chuva_24h'].unique())
     colormap = linear.YlGnBu_09.scale(min(sorted_thresholds), max(sorted_thresholds))

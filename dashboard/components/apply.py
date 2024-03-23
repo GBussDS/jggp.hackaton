@@ -6,7 +6,7 @@ def apply_updates(fig):
         #textfont=dict(color="white"),
         #insidetextfont=dict(color="white"),
         hoverlabel=dict(font=dict(color="white")),
-        marker_line_width=0
+        #marker_line_width=0
     )
 
     # Atualizando o layout

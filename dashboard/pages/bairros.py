@@ -78,7 +78,7 @@ def update_map(map_data, chuva_data, estacoes_data):
     colormap = linear.YlGnBu_09.scale(min(sorted_thresholds), max(sorted_thresholds))
 
     # Add legend to the map
-    colormap.caption = 'Rain Accumulation (24h)'
+    colormap.caption = 'Chuva Acumulada (24h)'
     m.add_child(colormap)
 
     # Create a mapping between polygons and stations inside them
@@ -109,7 +109,13 @@ def update_map(map_data, chuva_data, estacoes_data):
             # Create GeoJSON for the polygon
             geo_j = folium.GeoJson(data=r.geometry.__geo_interface__,
                                 style_function=lambda x, color=color: {'fillColor': color, 'fillOpacity': 1, 'color': 'black'})
-            folium.Popup(f"{r['nome']}\n\nAcumulado:{mean_chuva}").add_to(geo_j)
+
+            folium.Popup(f"""
+                <div>
+                    <h2>{r['nome']}</h2>
+                    <h4>Acumulado: {int(mean_chuva)}mm</h4>
+                </div>
+            """).add_to(geo_j)
             geo_j.add_to(m)
 
 

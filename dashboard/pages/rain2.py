@@ -31,7 +31,11 @@ def store_data(id):
     # query_job = client.query(query)
     # df = query_job.to_dataframe()
 
-    return df
+    frequencia = dict(df.value_counts(df["bairro"])) # Convertendo o DataFrame para um dicionário
+
+    filtered_dict = {k: v for k, v in frequencia.items() if v >= 5}
+
+    return filtered_dict  
 
 # Função de callback para atualizar o gráfico de pizza
 @callback(
@@ -39,15 +43,11 @@ def store_data(id):
     Input('alagamento', 'data')
 )
 def update_column_graph(data):
-
-    # Convertendo o DataFrame para um dicionário
-    frequencia = dict(data.value_counts(data["bairro"]))
-    filtered_dict = {k: v for k, v in frequencia.items() if v >= 5}
     
-    locations = list(filtered_dict.keys())
-    values = list(filtered_dict.values())
+    locations = list(data.keys())
+    values = list(data.values())
 
-    # Cria um gráfico de barra
+    # Create a bar chart
     fig = px.bar(x=locations, y=values, title="Sales by Location")
 
     fig = apply_updates(fig)

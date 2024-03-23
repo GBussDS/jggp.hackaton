@@ -38,8 +38,7 @@ def store_map_data(id):
     df_chuva = pd.read_csv('dashboard/data/acumulado_chuva_websirene.csv').dropna()
     df_chuva['horario'] = pd.to_datetime(df_chuva['horario'])  # Convert to datetime
     # Keep only the latest entry for each id_estacao
-    df_chuva = df_chuva.sort_values('horario').groupby('id_estacao').tail(1)
-    df_chuva = df_chuva.rename(columns={'acumulado_chuva_24_h': 'acumulado_chuva_24h'}).to_dict()
+    df_chuva = df_chuva.sort_values('horario').groupby('id_estacao').tail(1).to_dict()
     df_estacoes = pd.read_csv('dashboard/data/estacoes_websirene.csv').to_dict()
 
     return gdf_dict, df_chuva, df_estacoes
@@ -50,8 +49,9 @@ def store_map_data(id):
     Input('map-data-store', 'data'),
     Input('chuva-data-store', 'data'),
     Input('estacoes-data-store', 'data'),
+    Input('column-dropdown', 'value')
 )
-def update_map(map_data, chuva_data, estacoes_data):
+def update_map(map_data, chuva_data, estacoes_data, selected_column):
     df = pd.DataFrame(map_data)
     df_chuva = pd.DataFrame(chuva_data)
     df_estacoes = pd.DataFrame(estacoes_data)
@@ -74,11 +74,11 @@ def update_map(map_data, chuva_data, estacoes_data):
     folium.TileLayer(tile_url, attr=attribution, name='CartoDB Voyager Labels Under').add_to(m)
 
     # Sort thresholds for colormap
-    sorted_thresholds = sorted(df_chuva['acumulado_chuva_24h'].unique())
-    colormap = linear.YlGnBu_09.scale(min(sorted_thresholds), max(sorted_thresholds))
+    sorted_thresholds = sorted(df_chuva[selected_column].unique())
+    colormap = linear.YlGnBu_09.scale(1, 200)
 
     # Add legend to the map
-    colormap.caption = 'Rain Accumulation (24h)'
+    colormap.caption = f'Chuva Acumulada ({selected_column})'
     m.add_child(colormap)
 
     # Create a mapping between polygons and stations inside them
@@ -101,17 +101,22 @@ def update_map(map_data, chuva_data, estacoes_data):
         if stations_inside_polygon:
             # Get the relevant data for these stations
             station_data = merged_df[merged_df['id_estacao'].isin(stations_inside_polygon)]
-            # Calculate the mean of 'acumulado_chuva_24h' for these stations
-            mean_chuva = station_data['acumulado_chuva_24h'].mean()
+            # Calculate the mean of the selected column for these stations
+            mean_chuva = station_data[selected_column].mean()
             # Determine color based on the mean
             color = colormap(mean_chuva)
             
             # Create GeoJSON for the polygon
             geo_j = folium.GeoJson(data=r.geometry.__geo_interface__,
                                 style_function=lambda x, color=color: {'fillColor': color, 'fillOpacity': 1, 'color': 'black'})
-            folium.Popup(f"{r['nome']}\n\nAcumulado:{mean_chuva}").add_to(geo_j)
-            geo_j.add_to(m)
 
+            folium.Popup(f"""
+                <div>
+                    <h2>{r['nome']}</h2>
+                    <h4>Acumulado: {int(mean_chuva)}mm</h4>
+                </div>
+            """).add_to(geo_j)
+            geo_j.add_to(m)
 
     # Display the map
     m_html = m._repr_html_()
@@ -120,10 +125,22 @@ def update_map(map_data, chuva_data, estacoes_data):
 
 # Layout of the dashboard
 layout = html.Div([
-    header("Chuva no Rio de Janeiro"),
-
+    header("Acumulado de chuva por período", dcc.Dropdown(
+            id='column-dropdown',
+            options=[
+                {'label': 'Últimas 24 h', 'value': 'acumulado_chuva_24_h'},
+                {'label': 'Últimos 15 min', 'value': 'acumulado_chuva_15_min'},
+                {'label': 'Últimas 1 h', 'value': 'acumulado_chuva_1_h'},
+                {'label': 'Últimas 4 h', 'value': 'acumulado_chuva_4_h'},
+                {'label': 'Últimas 96 h', 'value': 'acumulado_chuva_96_h'}
+            ],
+            value='acumulado_chuva_24_h',  # Default value
+            clearable=False,
+            style={'width':'10vw','zIndex':'999','overflow': 'visible'}
+        )),
+    
     html.Div([
-        html.H1('Mapa bairros RJ', style={'textAlign': 'center', 'fontSize': '20px',"color": "#FFFFFF"}),
+        html.H1('mm Por Bairro', style={'textAlign': 'center', 'fontSize': '20px',"color": "#FFFFFF"}),
         html.Iframe(id='map-graph', srcDoc='', width='100%', height='90%')
     ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '90vh', 'width': '85vw'}),
     
@@ -132,4 +149,4 @@ layout = html.Div([
     dcc.Store(id='estacoes-data-store'),
     dcc.Store(id='chuva-data-store'),
 
-],style={'width':'100vw','height':'100vh'})
+],style={'width':'90vw','height':'100vh'})

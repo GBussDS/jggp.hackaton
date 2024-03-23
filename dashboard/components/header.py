@@ -3,13 +3,13 @@ from dash import html
 import dash_bootstrap_components as dbc
 import dash_dangerously_set_inner_html
 
-def header(nome):
+def header(nome, filtro=None):
     header =  html.Div(
         [
             dbc.Nav(
                 [
                     html.H1(nome, style={'color': '#fff', 'textTransform': 'Uppercase', 'fontSize': '30px'}),
-                    html.H1("filtro", style={'color': '#fff', 'textTransform': 'Uppercase', 'fontSize': '30px'}),
+                    filtro,
                     html.H1("filtro", style={'color': '#fff', 'textTransform': 'Uppercase', 'fontSize': '30px'}),
                 ],
                 style={
@@ -19,6 +19,7 @@ def header(nome):
                     'alignItems':'center',
                     'justifyContent':'space-between',
                     'margin':'0 2.5vw',
+                    'overflow': 'visible'
                 }
             ),
         ],

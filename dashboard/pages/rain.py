@@ -56,10 +56,27 @@ def update_line_chart(data):
     Input('rain-data-store-4A', 'data')
 )
 def update_bar_chart(data):
-    df = pd.read_csv("data/taxa_precipitacao_alertario_2023.csv")
-    fig = px.bar(df, x='id_estacao', y='acumulado_chuva_15_min', title='Acumulados por estação em 2023', color_discrete_sequence=["#0042AB"])
-    
+    precipitacao_alertario = pd.read_csv("dashboard/data/taxa_precipitacao_alertario_2023.csv")
+    precipitacao_alertario = precipitacao_alertario.groupby("id_estacao")["acumulado_chuva_15_min"].sum()
+    estacoes = pd.read_csv("dashboard/data/estacoes.csv")
+    estacoes = dict(zip(estacoes['id_estacao'], estacoes['estacao']))
+    precipitacao_alertario = precipitacao_alertario.rename(estacoes)
+    precipitacao_alertario = precipitacao_alertario.nlargest(5)
+    fig = px.bar(precipitacao_alertario, x= precipitacao_alertario.index, y=precipitacao_alertario.values, title='Acumulados por estação em 2023', color_discrete_sequence=["#0042AB"])
+
     fig = apply_updates(fig)
+    fig.update_layout(
+        xaxis=dict(
+            tickangle=-20  # Permite que os rótulos do eixo x ajustem automaticamente a margem para ajustar o texto
+        )
+    )
+    fig.update_xaxes(
+    title='Estação'
+    )
+    fig.update_yaxes(
+        title='Precipitação (mm)',
+        title_font=dict(size=13)
+    )
     
     return fig
 
@@ -86,9 +103,9 @@ layout = html.Div([
     html.Div([
         create_container_graph('rain-graph-1A', "Gráfico 1"),
         create_container_graph('rain-graph-2A', "Gráfico 2"),
-        create_container_graph('rain-graph-3A', "Gráfico 3"),
+        create_container_graph('rain-graph-3A', "Precipitação por estação"),
         create_container_graph('rain-graph-4A', "Gráfico 4"),
     ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
     
     dcc.Store(id='rain-data-store-4A') 
-],)
+])

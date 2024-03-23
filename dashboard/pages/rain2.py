@@ -11,6 +11,8 @@ from google.cloud import bigquery
 
 from data.data_query import df_ocorrencias, df_precipitacao_alertario_mensal
 
+dfs = []
+
 # Registrando a página
 dash.register_page(__name__, path="/rain2", name="Chuva2")
 
@@ -55,40 +57,48 @@ def update_column_graph(data):
     fig = apply_updates(fig)
     return fig
 
-# Função de callback para atualizar o gráfico de linha
-@callback(
-    Output('rain-graph-2B', 'figure'),
-    Input('alagamento', 'data')
-)
-def update_line_chart(data):
-    # df = pd.DataFrame(data)
+# # Função de callback para atualizar o gráfico de linha
+# @callback(
+#     Output('rain-graph-2B', 'figure'),
+#     Input('alagamento', 'data')
+# )
+# def update_line_chart(data):
+#     # df = pd.DataFrame(data)
 
-    df_alagamentos_por_dia = df_ocorrencias[df_ocorrencias["id_pop"].isin(["32", "31", "6"])]
-    df_alagamentos_por_dia = df_alagamentos_por_dia.groupby("data_particao").size()
+#     fig = px.line(df, x=df["data_particao"], y=df["ocorrencias"], title='Chuva no Rio de Janeiro')
+
+#     fig = apply_updates(fig)
     
-    fig = px.line(df_alagamentos_por_dia, x=df_alagamentos_por_dia.index, y=df_alagamentos_por_dia.values, title='Chuva no Rio de Janeiro')
+#     return fig
 
-    fig = apply_updates(fig)
+df_alagamentos_por_dia = df_ocorrencias[df_ocorrencias["id_pop"].isin(["32", "31", "6"])]
+df_alagamentos_por_dia = df_alagamentos_por_dia.groupby("data_particao").size()
+
+df_alagamentos_por_dia.index = pd.to_datetime(df_alagamentos_por_dia.index)
+df = df_alagamentos_por_dia.reset_index()
+df.rename(columns={0: 'ocorrencias'}, inplace=True)
+df['ano'] = df['data_particao'].dt.year
+
+dfs.append(df)
+
+# # Função de callback para atualizar o gráfico de barras
+# @callback(
+#     Output('rain-graph-3B', 'figure'),
+#     Input('alagamento', 'data')
+# )
+# def update_bar_chart(data):
+#     # df = pd.DataFrame(data)
+
+#     fig = px.bar(data_clean, x=data_clean["mes_ano"], y=data_clean["soma_acumulado_chuva_24_h"], title='Taxas de precipitação', color_discrete_sequence=["#0042AB"])
     
-    return fig
-
-# Função de callback para atualizar o gráfico de barras
-@callback(
-    Output('rain-graph-3B', 'figure'),
-    Input('alagamento', 'data')
-)
-def update_bar_chart(data):
-    # df = pd.DataFrame(data)
-
-    data_clean = df_precipitacao_alertario_mensal.drop(df_precipitacao_alertario_mensal['ano_mes'].idxmax())
-
-    fig = px.bar(data_clean, x=data_clean["ano_mes"], y=data_clean["soma_acumulado_chuva_24_h"], title='Taxas de precipitação', color_discrete_sequence=["#0042AB"])
-    
-    fig = apply_updates(fig)
-    fig.update_layout(xaxis=dict(range=[data_clean["ano_mes"].min(), data_clean["ano_mes"].max()]))
+#     fig = apply_updates(fig)
+#     fig.update_layout(xaxis=dict(range=[data_clean["mes_ano"].min(), data_clean["mes_ano"].max()]))
     
 
-    return fig
+#     return fig
+
+data_clean = df_precipitacao_alertario_mensal.drop(df_precipitacao_alertario_mensal['mes_ano'].idxmax())
+dfs.append(data_clean)
 
 
 # Função de callback para atualizar o gráfico
@@ -106,9 +116,49 @@ def update_graph(data):
 
     return fig
 
+# Função de callback para atualizar os gráficos com base no filtro selecionado
+@callback(
+    [Output('rain-graph-2B', 'figure'),
+     Output('rain-graph-3B', 'figure')],
+    [Input('filtro-ano', 'value')]
+)
+def update_graphs(selected_years):
+    # filtered_dfs = []
+    # for df in dfs:
+    filtered_df_1 = df[(df["ano"] > selected_years[0]) & (df["ano"] < selected_years[1])]
+    
+    # if df == df:
+    # df_alagamentos_por_dia = filtered_df[filtered_df["id_pop"].isin(["32", "31", "6"])]
+    # df_alagamentos_por_dia = df_alagamentos_por_dia.groupby("data_particao").size()
+    # df_alagamentos_por_dia.index = pd.to_datetime(df_alagamentos_por_dia.index)
+    # df = df_alagamentos_por_dia.reset_index()
+    # df.rename(columns={0: 'ocorrencias'}, inplace=True)
+    # df['ano'] = df['data_particao'].dt.year
+    fig1 = px.line(filtered_df_1, x="data_particao", y="ocorrencias", title='Número de eventos de enchente/inundação')
+    fig1.update_layout(height=400)
+    # elif df == data_clean:
+    # data_clean = filtered_df.drop(filtered_df['mes_ano'].idxmax())
+    filtered_df_2 = data_clean[(data_clean["ano"] > selected_years[0]) & (data_clean["ano"] < selected_years[1])]
+    fig2 = px.bar(filtered_df_2, x="mes_ano", y="soma_acumulado_chuva_24_h", title='Taxas de precipitação', color_discrete_sequence=["#0042AB"])
+    fig2.update_layout(xaxis=dict(range=[filtered_df_2["mes_ano"].min(), filtered_df_2["mes_ano"].max()]),
+                       height = 400)
+    
+    # filtered_dfs.append(fig)
+    
+    return fig1, fig2
+
 # Layout do dashboard
 layout = html.Div([
     header("Chuva no Rio de Janeiro"),
+
+    dcc.RangeSlider(
+        id='filtro-ano',
+        min=1997,
+        max=2024,
+        marks={ano: str(ano) for ano in range(1997, 2025)},
+        value=[1997,2024],
+        step=1
+    ),
     
     html.Div([
         create_container_graph('rain-graph-1B', "Casos de Alagamento por Bairro"),

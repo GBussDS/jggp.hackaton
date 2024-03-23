@@ -79,14 +79,16 @@ WITH ranked_data AS (
 ),
 summed_data AS (
   SELECT
-    FORMAT_DATE('%Y-%m', data_particao) AS ano_mes,
+    EXTRACT(YEAR FROM data_particao) AS ano,
+    EXTRACT(MONTH FROM data_particao) AS mes,
+    CONCAT(EXTRACT(YEAR FROM data_particao), '-', LPAD(CAST(EXTRACT(MONTH FROM data_particao) AS STRING), 2, '0')) AS mes_ano,
     SUM(acumulado_chuva_24_h) AS soma_acumulado_chuva_24_h
   FROM
     ranked_data
   WHERE
     row_num = 1
   GROUP BY
-    ano_mes
+    ano, mes, mes_ano
 )
 SELECT * FROM summed_data;
 """

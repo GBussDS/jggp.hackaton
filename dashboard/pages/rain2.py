@@ -12,33 +12,47 @@ dash.register_page(__name__, path="/rain2", name="Chuva2")
 
 # Função de callback para armazenar o DataFrame
 @callback(
-    Output('rain-data-store-4B', 'data'),
-    Input('rain-data-store-4B', 'id')
+    Output('alagamento', 'data'),
+    Input('alagamento', 'id')
 )
 def store_data(id):
     # Criando um DataFrame do zero
-    df = pd.DataFrame({
-        'Cidade': ['Flamengo', 'Barra da Tijuca', 'Botafogo', 'Catete', 'Centro'],
-        'Chuva': [120, 150, 170, 200, 180]
-    })
+    df = pd.read_csv("dashboard/data/ponto_supervisionado_alagamento.csv")
 
-    return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
+    # Faça a consulta SQL
+    # query = """
+    # SELECT * FROM `rj-rioaguas.saneamento_drenagem.ponto_supervisionado_alagamento`
+    # """
+    # query_job = client.query(query)
+
+    # df_alertario = query_job.to_dataframe()
+
+    frequencia = dict(df.value_counts(df["bairro"])) # Convertendo o DataFrame para um dicionário
+
+    filtered_dict = {k: v for k, v in frequencia.items() if v >= 5}
+
+    return filtered_dict  
 
 # Função de callback para atualizar o gráfico de pizza
 @callback(
     Output('rain-graph-1B', 'figure'),
-    Input('rain-data-store-4B', 'data')
+    Input('alagamento', 'data')
 )
-def update_pie_chart(data):
-    df = pd.DataFrame(data)
-    fig = px.pie(df, names='Cidade', values='Chuva', title='Chuva no Rio de Janeiro')
+def update_column_graph(data):
+    
+    locations = list(data.keys())
+    values = list(data.values())
+
+    # Create a bar chart
+    fig = px.bar(x=locations, y=values, title="Sales by Location")
+
     fig = apply_updates(fig)
     return fig
 
 # Função de callback para atualizar o gráfico de linha
 @callback(
     Output('rain-graph-2B', 'figure'),
-    Input('rain-data-store-4B', 'data')
+    Input('alagamento', 'data')
 )
 def update_line_chart(data):
     df = pd.DataFrame(data)
@@ -51,7 +65,7 @@ def update_line_chart(data):
 # Função de callback para atualizar o gráfico de barras
 @callback(
     Output('rain-graph-3B', 'figure'),
-    Input('rain-data-store-4B', 'data')
+    Input('alagamento', 'data')
 )
 def update_bar_chart(data):
     df = pd.DataFrame(data)
@@ -65,7 +79,7 @@ def update_bar_chart(data):
 # Função de callback para atualizar o gráfico
 @callback(
     Output('rain-graph-4B', 'figure'),
-    Input('rain-data-store-4B', 'data')
+    Input('alagamento', 'data')
 )
 def update_graph(data):
     df = pd.DataFrame(data)  # Convertendo o dicionário de volta para um DataFrame
@@ -88,6 +102,6 @@ layout = html.Div([
         create_container_graph('rain-graph-4B', "Gráfico 4"),
     ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
     
-    dcc.Store(id='rain-data-store-4B') 
+    dcc.Store(id='alagamento') 
 ],
 )

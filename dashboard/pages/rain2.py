@@ -9,7 +9,7 @@ from components.container import create_container_graph
 
 from google.cloud import bigquery
 
-from data.data_query import df_ocorrencias
+from data.data_query import df_ocorrencias, df_precipitacao_alertario_mensal
 
 # Registrando a página
 dash.register_page(__name__, path="/rain2", name="Chuva2")
@@ -63,8 +63,6 @@ def update_column_graph(data):
 def update_line_chart(data):
     # df = pd.DataFrame(data)
 
-    year = 2022
-
     df_alagamentos_por_dia = df_ocorrencias[df_ocorrencias["id_pop"].isin(["32", "31", "6"])]
     df_alagamentos_por_dia = df_alagamentos_por_dia.groupby("data_particao").size()
     
@@ -80,11 +78,16 @@ def update_line_chart(data):
     Input('alagamento', 'data')
 )
 def update_bar_chart(data):
-    df = pd.DataFrame(data)
-    fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
+    # df = pd.DataFrame(data)
+
+    data_clean = df_precipitacao_alertario_mensal.drop(df_precipitacao_alertario_mensal['ano_mes'].idxmax())
+
+    fig = px.bar(data_clean, x=data_clean["ano_mes"], y=data_clean["soma_acumulado_chuva_24_h"], title='Taxas de precipitação', color_discrete_sequence=["#0042AB"])
     
     fig = apply_updates(fig)
+    fig.update_layout(xaxis=dict(range=[data_clean["ano_mes"].min(), data_clean["ano_mes"].max()]))
     
+
     return fig
 
 
@@ -109,9 +112,9 @@ layout = html.Div([
     
     html.Div([
         create_container_graph('rain-graph-1B', "Casos de Alagamento por Bairro"),
-        create_container_graph('rain-graph-2B', "Gráfico 2"),
-        create_container_graph('rain-graph-3B', "Gráfico 3"),
+        create_container_graph('rain-graph-2B', "Número de eventos de enchente/inundação"),
         create_container_graph('rain-graph-4B', "Gráfico 4"),
+        create_container_graph('rain-graph-3B', "Taxas de precipitação"),
     ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
     
     dcc.Store(id='alagamento') 

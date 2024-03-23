@@ -11,7 +11,7 @@ import os
 from google.cloud import bigquery
 
 # Registrando a página
-dash.register_page(__name__, path="/rain4", name="Chuva4")
+dash.register_page(__name__, path="/bairros", name="Bairros")
 
 # Crie uma instância do cliente BigQuery
 client = bigquery.Client(project='hackaton-fgv-guris')

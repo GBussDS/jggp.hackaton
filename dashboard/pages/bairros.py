@@ -7,7 +7,7 @@ import folium
 from components.header import header
 
 # Registrando a página
-dash.register_page(__name__, path="/rain4", name="Chuva4")
+dash.register_page(__name__, path="/bairros", name="Bairros")
 
 @callback(
     Output('map-data-store', 'data'),
@@ -44,7 +44,7 @@ def update_map(data):
         geo_j.add_to(m)
 
     # Display the map
-    m_html = m.repr_html()
+    m_html = m._repr_html_()
 
     return m_html
 

@@ -14,19 +14,20 @@ dash.register_page(__name__, path="/query", name="Query")
 # Crie uma instância do cliente BigQuery
 client = bigquery.Client(project='hackaton-fgv-guris')
 
+# Faça a consulta SQL
+query = """
+SELECT *
+FROM datario.clima_pluviometro.taxa_precipitacao_inea
+"""
+query_job = client.query(query)
+    
+
 # Função de callback para fazer a consulta e armazenar os dados
 @callback(
     Output('query-data', 'data'),
     Input('query-data', 'id')
 )
 def store_data(id):
-    # Faça a consulta SQL
-    query = """
-    SELECT *
-    FROM datario.clima_pluviometro.taxa_precipitacao_inea
-    """
-    query_job = client.query(query)
-
     # Converta o resultado da consulta em um DataFrame
     df_datario = query_job.to_dataframe()
 

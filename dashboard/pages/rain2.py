@@ -7,6 +7,8 @@ from components.header import header
 from components.apply import apply_updates
 from components.container import create_container_graph
 
+from data.data_query import df_ocorrencias
+
 # Registrando a página
 dash.register_page(__name__, path="/rain2", name="Chuva2")
 
@@ -41,9 +43,15 @@ def update_pie_chart(data):
     Input('rain-data-store-4B', 'data')
 )
 def update_line_chart(data):
-    df = pd.DataFrame(data)
-    fig = px.line(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro')
+    # df = pd.DataFrame(data)
+
+    year = 2022
+
+    df_alagamentos_por_dia = df_ocorrencias[df_ocorrencias["id_pop"].isin(["32", "31", "6"])]
+    df_alagamentos_por_dia = df_alagamentos_por_dia.groupby("data_particao").size()
     
+    fig = px.line(df_alagamentos_por_dia, x=df_alagamentos_por_dia.index, y=df_alagamentos_por_dia.values, title='Chuva no Rio de Janeiro')
+
     fig = apply_updates(fig)
     
     return fig

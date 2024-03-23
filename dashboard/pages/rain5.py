@@ -24,6 +24,7 @@ def store_data(id):
 
     return df.to_dict('records')  # Convertendo o DataFrame para um dicionário
 
+
 # Função de callback para atualizar o gráfico de pizza
 @callback(
     Output('rain-graph-1E', 'figure'),
@@ -34,6 +35,7 @@ def update_pie_chart(data):
     fig = px.pie(df, names='Cidade', values='Chuva', title='Chuva no Rio de Janeiro')
     fig = apply_updates(fig)
     return fig
+
 
 # Função de callback para atualizar o gráfico de linha
 @callback(
@@ -47,6 +49,7 @@ def update_line_chart(data):
     fig = apply_updates(fig)
     
     return fig
+
 
 # Função de callback para atualizar o gráfico de barras
 @callback(
@@ -76,6 +79,7 @@ def update_graph(data):
     fig = apply_updates(fig)
 
     return fig
+
 
 # Layout do dashboard
 layout = html.Div([

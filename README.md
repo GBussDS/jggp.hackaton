@@ -43,7 +43,7 @@ Este trecho de código Python corresponde à inicialização e configuração de
    - Por fim, são utilizados algumas funções da pasta Components, como criação de Divs HTML, containers e aplicar layouts em gráficos.
 
 3. **Conexão com o Google Cloud:**
-   - Para rodar o código, baixe o Google CLI, o que permite fazermos as queries. Todas as tabelas e dados foram puxadas através de BigQuery no Google Cloud.
+   - Para rodar o código, baixe o Google CLI, o que permite fazermos as queries. Caso alguma query necessite de uma permissão especial que foi dada para aqueles que fizeram o projeto e você não possuir um login com essa permissão, comente essa parte do código. Todas as tabelas e dados foram puxadas através de BigQuery no Google Cloud.
 
 O código tem como objetivo principal criar um ambiente web interativo, onde os usuários podem visualizar e interagir com os dados fornecidos, facilitando a análise e compreensão das informações apresentadas.
 

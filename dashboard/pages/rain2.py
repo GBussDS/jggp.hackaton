@@ -14,7 +14,7 @@ from data.data_query import df_ocorrencias, df_precipitacao_alertario_mensal
 dfs = []
 
 # Registrando a página
-dash.register_page(__name__, path="/rain2", name="Chuva2")
+dash.register_page(__name__, path="/rain2", name="Chuvas2")
 
 # Crie uma instância do cliente BigQuery
 client = bigquery.Client(project='hackaton-fgv-guris')

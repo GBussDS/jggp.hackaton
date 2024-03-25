@@ -9,7 +9,7 @@ from components.apply import apply_updates
 from components.container import create_container_graph
 
 # Registrando a página
-dash.register_page(__name__, path="/rain_precipitation", name="Chuva_Precipitacao")
+dash.register_page(__name__, path="/cemaden", name="Cemaden")
 
 # Função de callback para atualizar o gráfico de precipitação de 24 horas
 @callback(

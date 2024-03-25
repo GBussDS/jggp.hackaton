@@ -10,7 +10,7 @@ def sidebar():
                 [
                     dbc.NavLink(
                         [
-                            html.H1("Texto 1", className="navbar-title")
+                            html.H1(page["name"], className="navbar-title")
                         ], 
                         href=page["relative_path"], 
                         active="exact"

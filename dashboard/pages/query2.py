@@ -10,7 +10,7 @@ from components.container import create_large_container_graph
 
 from data.data_query import df_ocorrencias
 
-dash.register_page(__name__, path="/query2", name="Sou uma query")
+dash.register_page(__name__, path="/query2", name="Ocorrencias")
 
 # Passa dados
 @callback(

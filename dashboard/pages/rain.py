@@ -9,7 +9,7 @@ from components.apply import apply_updates
 from components.container import create_container_graph
 
 # Registrando a página
-dash.register_page(__name__, path="/rain", name="Chuva1")
+dash.register_page(__name__, path="/rain", name="Chuvas")
 
 # Função de callback para armazenar o DataFrame
 @callback(

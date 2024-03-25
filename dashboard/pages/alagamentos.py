@@ -57,19 +57,6 @@ def update_column_graph(data):
     fig = apply_updates(fig)
     return fig
 
-# # Função de callback para atualizar o gráfico de linha
-# @callback(
-#     Output('rain-graph-2B', 'figure'),
-#     Input('alagamento', 'data')
-# )
-# def update_line_chart(data):
-#     # df = pd.DataFrame(data)
-
-#     fig = px.line(df, x=df["data_particao"], y=df["ocorrencias"], title='Chuva no Rio de Janeiro')
-
-#     fig = apply_updates(fig)
-    
-#     return fig
 
 df_alagamentos_por_dia = df_ocorrencias[df_ocorrencias["id_pop"].isin(["32", "31", "6"])]
 df_alagamentos_por_dia = df_alagamentos_por_dia.groupby("data_particao").size()
@@ -100,33 +87,16 @@ dfs.append(df)
 data_clean = df_precipitacao_alertario_mensal.drop(df_precipitacao_alertario_mensal['mes_ano'].idxmax())
 dfs.append(data_clean)
 
-
-# Função de callback para atualizar o gráfico
-@callback(
-    Output('rain-graph-4B', 'figure'),
-    Input('alagamento', 'data')
-)
-def update_graph(data):
-    df = pd.DataFrame(data)  # Convertendo o dicionário de volta para um DataFrame
-
-    # Criando um gráfico com Plotly Express
-    fig = px.bar(df, x='Cidade', y='Chuva', title='Chuva no Rio de Janeiro', color_discrete_sequence=["#0042AB"])
-
-    fig = apply_updates(fig)
-
-    return fig
-
 # Função de callback para atualizar os gráficos com base no filtro selecionado
 @callback(
-    [Output('rain-graph-2B', 'figure')],
-    [Input('filtro-ano', 'value')]
+    Output('rain-graph-2B', 'figure'),
+    Input('filtro-ano', 'value')
 )
 def update_graphs(selected_years):
     filtered_df_1 = df[(df["ano"] > selected_years[0]) & (df["ano"] < selected_years[1])]
 
-    fig1 = px.line(filtered_df_1, x="data_particao", y="ocorrencias", title='Número de eventos de enchente/inundação')
-    fig1.update_layout(height=400)
-    
+    fig1 = px.line(filtered_df_1, x="data_particao", y="ocorrencias")
+    fig1 = apply_updates(fig1)
     return fig1
 
 # Layout do dashboard
@@ -144,14 +114,14 @@ layout = html.Div([
     
     html.Div([
         html.Div([
-                html.H1("Casos de Alagamento por Bairro", style={'textAlign': 'center', 'fontSize': '20px'}),
+                html.H1("Casos de Alagamento por Bairro", style={'textAlign': 'center', 'fontSize': '20px', "color": "#FFFFFF"}),
                 dcc.Graph(id='rain-graph-1B', style={'width': '90%', 'height': '75vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
     ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '87.5vh', 'width': '46vw'}),
         html.Div([
-                html.H1("Número de eventos de enchente/inundação", style={'textAlign': 'center', 'fontSize': '20px'}),
+                html.H1("Número de eventos de enchente/inundação", style={'textAlign': 'center', 'fontSize': '20px', "color": "#FFFFFF"}),
                 dcc.Graph(id='rain-graph-2B', style={'width': '90%', 'height': '75vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
     ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '87.5vh', 'width': '46vw'}),
-    ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
+    ], style={'display': 'flex','flexDirection': 'row', 'flex-direction': 'row'}),
     
     dcc.Store(id='alagamento') 
 ],

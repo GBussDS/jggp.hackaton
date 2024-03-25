@@ -29,6 +29,9 @@ def update_24h_precipitation_graph(data):
     # Criamos o gráfico de linha
     fig = px.line(df, x='data_medicao', y='acumulado_chuva_24_h', color='id_estacao', title='Precipitação horária por estação no último mês')
     fig = apply_updates(fig)
+    # Remover a legenda
+    fig.update_layout(showlegend=False)
+
     return fig
 
 # Função de callback para atualizar o gráfico de precipitação de 1 hora
@@ -49,6 +52,8 @@ def update_1h_precipitation_graph(data):
     # Criamos o gráfico de linha
     fig = px.line(df, x='data_medicao', y='acumulado_chuva_1_h', color='id_estacao', title='Precipitação horária por estação no último mês')
     fig = apply_updates(fig)
+    # Remover a legenda
+    fig.update_layout(showlegend=False)
     return fig
 
 
@@ -70,6 +75,8 @@ def update_96h_precipitation_graph(data):
     # Criamos o gráfico de linha
     fig = px.line(df, x='data_medicao', y='acumulado_chuva_96_h', color='id_estacao', title='Precipitação a cada 96 horas por estação nos últimos 4 meses')
     fig = apply_updates(fig)
+    # Remover a legenda
+    fig.update_layout(showlegend=False)
     return fig
 
 # Função de callback para atualizar o gráfico de precipitação de 10 minutos
@@ -90,6 +97,8 @@ def update_10min_precipitation_graph(data):
     # Criamos o gráfico de linha
     fig = px.line(df, x='data_medicao', y='acumulado_chuva_10_min', color='id_estacao', title='Precipitação a cada 10 minutos por estação no último mês')
     fig = apply_updates(fig)
+    # Remover a legenda
+    fig.update_layout(showlegend=False)
     return fig
 
 

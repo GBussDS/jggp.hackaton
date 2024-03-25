@@ -24,15 +24,15 @@ dfs.append(data_clean)
 
 # Função de callback para atualizar os gráficos com base no filtro selecionado
 @callback(
-    [Output('rain-graph-3B', 'figure')],
-    [Input('filtro-ano', 'value')]
+    Output('rain-graph-3B', 'figure'),
+    Input('filtro-ano', 'value')
 )
 def update_graphs(selected_years):
 
     filtered_df_2 = data_clean[(data_clean["ano"] > selected_years[0]) & (data_clean["ano"] < selected_years[1])]
     fig2 = px.bar(filtered_df_2, x="mes_ano", y="soma_acumulado_chuva_24_h", title='Taxas de precipitação', color_discrete_sequence=["#0042AB"])
-    fig2.update_layout(xaxis=dict(range=[filtered_df_2["mes_ano"].min(), filtered_df_2["mes_ano"].max()]),
-                       height = 400)
+    fig2.update_layout(xaxis=dict(range=[filtered_df_2["mes_ano"].min(), filtered_df_2["mes_ano"].max()]))
+    fig2 = apply_updates(fig2)
     return fig2
 
 # Layout do dashboard
@@ -50,11 +50,11 @@ layout = html.Div([
     
     html.Div([
         html.Div([
-                html.H1("Taxas de precipitação", style={'textAlign': 'center', 'fontSize': '20px'}),
+                html.H1("Taxas de precipitação", style={'textAlign': 'center', 'fontSize': '20px', "color": "#FFFFFF"}),
                 dcc.Graph(id='rain-graph-3B', style={'width': '90%', 'height': '75vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
     ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '87.5vh', 'width': '92vw'}),
     ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
-    
+
     dcc.Store(id='alagamento2') 
 ],
 )

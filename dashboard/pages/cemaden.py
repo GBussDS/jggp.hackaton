@@ -95,7 +95,7 @@ def update_10min_precipitation_graph(data):
     df = pd.merge(df_cemaden, df_last_month, on='id_estacao')
 
     # Criamos o gráfico de linha
-    fig = px.line(df, x='data_medicao', y='acumulado_chuva_15_min', color='id_estacao', title='Precipitação a cada 10 minutos por estação no último mês')
+    fig = px.line(df, x='data_medicao', y='acumulado_chuva_10_min', color='id_estacao', title='Precipitação a cada 10 minutos por estação no último mês')
     fig = apply_updates(fig)
     # Remover a legenda
     fig.update_layout(showlegend=False)

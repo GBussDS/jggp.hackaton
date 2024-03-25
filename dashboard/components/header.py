@@ -10,7 +10,6 @@ def header(nome, filtro=None):
                 [
                     html.H1(nome, style={'color': '#fff', 'textTransform': 'Uppercase', 'fontSize': '30px'}),
                     filtro,
-                    html.H1("filtro", style={'color': '#fff', 'textTransform': 'Uppercase', 'fontSize': '30px'}),
                 ],
                 style={
                     "display": "flex",
@@ -19,7 +18,8 @@ def header(nome, filtro=None):
                     'alignItems':'center',
                     'justifyContent':'space-between',
                     'margin':'0 2.5vw',
-                    'overflow': 'visible'
+                    'overflow': 'visible',
+                    'zIndex':'999',
                 }
             ),
         ],
@@ -31,6 +31,7 @@ def header(nome, filtro=None):
             "width": "97%",
             "marginRight": "0%",
             "marginTop": "5px",
+            'zIndex':'999',
         } 
     )
 

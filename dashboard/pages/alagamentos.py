@@ -14,7 +14,7 @@ from data.data_query import df_ocorrencias, df_precipitacao_alertario_mensal
 dfs = []
 
 # Registrando a página
-dash.register_page(__name__, path="/rain2", name="Chuvas2")
+dash.register_page(__name__, path="/alagamentos", name="Alagamentos")
 
 # Crie uma instância do cliente BigQuery
 client = bigquery.Client(project='hackaton-fgv-guris')
@@ -118,34 +118,16 @@ def update_graph(data):
 
 # Função de callback para atualizar os gráficos com base no filtro selecionado
 @callback(
-    [Output('rain-graph-2B', 'figure'),
-     Output('rain-graph-3B', 'figure')],
+    [Output('rain-graph-2B', 'figure')],
     [Input('filtro-ano', 'value')]
 )
 def update_graphs(selected_years):
-    # filtered_dfs = []
-    # for df in dfs:
     filtered_df_1 = df[(df["ano"] > selected_years[0]) & (df["ano"] < selected_years[1])]
-    
-    # if df == df:
-    # df_alagamentos_por_dia = filtered_df[filtered_df["id_pop"].isin(["32", "31", "6"])]
-    # df_alagamentos_por_dia = df_alagamentos_por_dia.groupby("data_particao").size()
-    # df_alagamentos_por_dia.index = pd.to_datetime(df_alagamentos_por_dia.index)
-    # df = df_alagamentos_por_dia.reset_index()
-    # df.rename(columns={0: 'ocorrencias'}, inplace=True)
-    # df['ano'] = df['data_particao'].dt.year
+
     fig1 = px.line(filtered_df_1, x="data_particao", y="ocorrencias", title='Número de eventos de enchente/inundação')
     fig1.update_layout(height=400)
-    # elif df == data_clean:
-    # data_clean = filtered_df.drop(filtered_df['mes_ano'].idxmax())
-    filtered_df_2 = data_clean[(data_clean["ano"] > selected_years[0]) & (data_clean["ano"] < selected_years[1])]
-    fig2 = px.bar(filtered_df_2, x="mes_ano", y="soma_acumulado_chuva_24_h", title='Taxas de precipitação', color_discrete_sequence=["#0042AB"])
-    fig2.update_layout(xaxis=dict(range=[filtered_df_2["mes_ano"].min(), filtered_df_2["mes_ano"].max()]),
-                       height = 400)
     
-    # filtered_dfs.append(fig)
-    
-    return fig1, fig2
+    return fig1
 
 # Layout do dashboard
 layout = html.Div([
@@ -162,20 +144,13 @@ layout = html.Div([
     
     html.Div([
         html.Div([
-                html.H1("Taxas de precipitação", style={'textAlign': 'center', 'fontSize': '20px'}),
-                dcc.Graph(id='rain-graph-3B', style={'width': '90%', 'height': '75vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
-    ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '87.5vh', 'width': '46vw'}),
-
-    html.Div([
-        html.Div([
                 html.H1("Casos de Alagamento por Bairro", style={'textAlign': 'center', 'fontSize': '20px'}),
-                dcc.Graph(id='rain-graph-1B', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
-        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '41vw',}),
+                dcc.Graph(id='rain-graph-1B', style={'width': '90%', 'height': '75vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+    ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '87.5vh', 'width': '46vw'}),
         html.Div([
                 html.H1("Número de eventos de enchente/inundação", style={'textAlign': 'center', 'fontSize': '20px'}),
-                dcc.Graph(id='rain-graph-2B', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
-        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '41vw',}),
-    ], style={'display': 'flex', 'flex-direction': 'column'})
+                dcc.Graph(id='rain-graph-2B', style={'width': '90%', 'height': '75vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+    ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '87.5vh', 'width': '46vw'}),
     ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
     
     dcc.Store(id='alagamento') 

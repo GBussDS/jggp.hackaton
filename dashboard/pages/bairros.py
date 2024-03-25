@@ -123,9 +123,37 @@ def update_map(map_data, chuva_data, estacoes_data, selected_column):
 
     return m_html
 
+@callback(
+    Output("download-dataframe-mapa", "data"),
+    Input("btn_mapa", "n_clicks"),
+    Input('map-data-store', 'data'),
+    Input('chuva-data-store', 'data'),
+    Input('estacoes-data-store', 'data'),
+    prevent_initial_call=True
+)
+def download_dados_mapa(n_clicks, gdf_dict, df_chuva_dict, df_estacoes_dict):
+    if n_clicks:
+        df_chuva = pd.DataFrame(df_chuva_dict)
+        df_estacoes = pd.DataFrame(df_estacoes_dict)
+        merged_df = pd.merge(df_chuva, df_estacoes, on='id_estacao', how='inner')
+        return dcc.send_data_frame(merged_df.to_excel, "estacoes_websirene.xlsx", index=False)
+
+@callback(
+    Output("download-fig-mapa", "data"),
+    Input("btn_mapa_fig", "n_clicks"),
+    Input('map-graph', 'srcDoc'),
+    prevent_initial_call=True
+)
+def download_fig_mapa(n_clicks, map):
+    if n_clicks:
+        return dcc.send_string(map, "mapa_acumulado_chuva.html")
+        
+    
+
 # Layout of the dashboard
 layout = html.Div([
-    header("Acumulado de chuva por período", dcc.Dropdown(
+    header("Acumulado de chuva por período", 
+        dcc.Dropdown(
             id='column-dropdown',
             options=[
                 {'label': 'Últimas 24 h', 'value': 'acumulado_chuva_24_h'},
@@ -137,7 +165,13 @@ layout = html.Div([
             value='acumulado_chuva_24_h',  # Default value
             clearable=False,
             style={'width':'10vw','zIndex':'999','overflow': 'visible'}
-        )),
+        )),html.Div([
+        html.Button("Download Dados", id="btn_mapa"),
+        dcc.Download(id="download-dataframe-mapa"),
+        ]),html.Div([
+            html.Button("Download Gráfico", id="btn_mapa_fig"),
+            dcc.Download(id="download-fig-mapa"),
+        ]),
     
     html.Div([
         html.H1('mm Por Bairro', style={'textAlign': 'center', 'fontSize': '20px',"color": "#FFFFFF"}),

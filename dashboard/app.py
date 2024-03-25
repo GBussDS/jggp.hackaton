@@ -30,7 +30,7 @@ app = Dash(
 #Layout do Dashboard
 app.layout = html.Div(
     [
-        dcc.Location(id="url", pathname="/rain"), 
+        dcc.Location(id="url", pathname="/alagamentos"), 
 
         sidebar(),
 

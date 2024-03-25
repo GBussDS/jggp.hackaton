@@ -161,10 +161,21 @@ layout = html.Div([
     ),
     
     html.Div([
-        create_container_graph('rain-graph-1B', "Casos de Alagamento por Bairro"),
-        create_container_graph('rain-graph-2B', "Número de eventos de enchente/inundação"),
-        create_container_graph('rain-graph-4B', "Gráfico 4"),
-        create_container_graph('rain-graph-3B', "Taxas de precipitação"),
+        html.Div([
+                html.H1("Taxas de precipitação", style={'textAlign': 'center', 'fontSize': '20px'}),
+                dcc.Graph(id='rain-graph-3B', style={'width': '90%', 'height': '75vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+    ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'height': '87.5vh', 'width': '46vw'}),
+
+    html.Div([
+        html.Div([
+                html.H1("Casos de Alagamento por Bairro", style={'textAlign': 'center', 'fontSize': '20px'}),
+                dcc.Graph(id='rain-graph-1B', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '41vw',}),
+        html.Div([
+                html.H1("Número de eventos de enchente/inundação", style={'textAlign': 'center', 'fontSize': '20px'}),
+                dcc.Graph(id='rain-graph-2B', style={'width': '90%', 'height': '32vh', 'display': 'block', 'margin': 'auto', 'backgroundColor': '#000000', 'borderRadius': '15px'}),
+        ], style={'backgroundColor': '#000000', 'borderRadius': '15px', 'margin': '0.5% 0.5%', 'padding': '20px', 'width': '41vw',}),
+    ], style={'display': 'flex', 'flex-direction': 'column'})
     ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
     
     dcc.Store(id='alagamento') 

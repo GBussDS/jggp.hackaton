@@ -32,7 +32,20 @@ Os dados foram extraídos de duas formas:
 Desenvolvemos um dashboard altamente funcional e informativo, oferecendo soluções eficazes para os desafios enfrentados pela equipe do Rio Águas. Integrando diferentes tecnologias e aplicando conhecimentos adquiridos na FGV, criamos visualizações intuitivas e informativas, proporcionando uma experiência de usuário aprimorada.
 
 ## Código
-O código foi desenvolvido em Python utilizando a biblioteca Dash para construção do dashboard. Foi utilizado o Google Cloud BigQuery para extração de dados em tempo real.
+Este trecho de código Python corresponde à inicialização e configuração de um aplicativo web utilizando Dash, uma biblioteca em Python para criação de aplicações web interativas.
+
+1. **Inicialização do Aplicativo Dash:**
+   - Para rodar o projeto, dê um git clone ou download dos arquivos e rode o `app.py`.
+
+2. **Páginas e seu Funcionamento:**
+   - Todas as páginas estão definidas dentro da pasta Pages, onde temos todas as abas do projeto. Cada arquivo cria uma nova página e dentro do arquivo são puxados os dados das queries e feito os gráficos;
+   - As queries estão disponíveis no arquivo `data_query.py` dentro da pasta data, lá é possível ver todos as requisições em SQL que utilizamos no projeto;
+   - Por fim, são utilizados algumas funções da pasta Components, como criação de Divs HTML, containers e aplicar layouts em gráficos.
+
+3. **Conexão com o Google Cloud:**
+   - Para rodar o código, baixe o Google CLI, o que permite fazermos as queries. Todas as tabelas e dados foram puxadas através de BigQuery no Google Cloud.
+
+O código tem como objetivo principal criar um ambiente web interativo, onde os usuários podem visualizar e interagir com os dados fornecidos, facilitando a análise e compreensão das informações apresentadas.
 
 ---
 
